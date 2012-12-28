@@ -1,0 +1,19 @@
+# config for Makefile
+
+CXX = g++
+LINK = $(CXX)
+CXXFLAGS=-O2 -g -Wall -std=c++0x
+LDFLAGS=-g
+INCPATH=-I./src
+LIBPATH=
+LIBS=-lstdc++
+
+SRCDIR=./src
+BUILDDIR=./build
+BINDIR=./bin
+DESTDIR=./install
+
+TARGET=$(BINDIR)/pretext
+VERSION=0.0.1
+
+
