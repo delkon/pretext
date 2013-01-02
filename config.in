@@ -2,7 +2,7 @@
 
 CXX = g++
 LINK = $(CXX)
-CXXFLAGS=-O2 -g -Wall -std=c++0x
+CXXFLAGS=-g -Wall -std=c++0x
 LDFLAGS=-g
 INCPATH=-I./src
 LIBPATH=

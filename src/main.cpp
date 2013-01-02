@@ -38,18 +38,21 @@ int main()
     const int MaxTestIteration = 100;
     const size_t MaxWordLength=10;
 
+
     std::cout << "Test started, tests iteration:  " << MaxTestIteration << std::endl;
 
+    srand ( time(NULL) );
     for( int test=0; test<MaxTestIteration; ++test )
     {
         digits.clear();
-        const size_t len = sizeof(d)/sizeof(int);
+        const int len = sizeof(d)/sizeof(int);
+
         for( size_t i=0; i < MaxWordLength; ++i )
         {
             digits.push_back( d[ rand() % len ] );
             Prompter::StringList words = prompt.getSuggestedWords( digits );
 
-            //if generated word incorrect and doesn't have predicted words
+            //if generated word incorrect it doesn't has predicted words
             if( !words.size() ) break;
         }
     }

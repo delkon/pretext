@@ -2,7 +2,7 @@
 
 include config.in
 
-HEADERS = Prompter.hpp
+HEADERS = Prompter.hpp CharDomen.hpp CharTree.hpp
 OBJECTS = main.o
 
 OBJ = $(patsubst %,$(BUILDDIR)/%,$(OBJECTS))

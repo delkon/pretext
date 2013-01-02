@@ -32,6 +32,10 @@ public:
 			  char ch3,
 			  char ch4 = 0)
 	{
+		trees_.insert( std::make_pair( ch1, CharTree() ));
+		trees_.insert( std::make_pair( ch2, CharTree() ));
+		trees_.insert( std::make_pair( ch3, CharTree() ));
+		if( ch4 ) trees_.insert( std::make_pair( ch4, CharTree() ));
 	}
 
 	~CharDomen()
@@ -48,6 +52,31 @@ public:
 						         std::list<std::string> &words)
 	{
 		//todo
+	}
+
+	/** \brief
+	 * 		This method works with unique string only
+	 *  \note
+	 * 		It doesn't consist any checks if this word already exists or not.
+	 * 		Words must be unique.
+	 *
+	 * @param value[in]	Input string
+	 */
+	void Add( const std::string &value )
+	{
+		auto it = trees_.find( std::toupper( value[0] ) );
+
+		if( it == trees_.end() )
+		{
+			throw std::runtime_error( "[Internal error] Undefined domen for string: " + std::string( value ) );
+		}
+
+		storage_.push_back( value );
+
+		//std::cout << "Adding " << value ;
+
+		CharTree &ct = it->second;
+		ct.Add( value, 1, storage_.size()-1 );
 	}
 
 private:
