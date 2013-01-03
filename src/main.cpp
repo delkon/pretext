@@ -5,10 +5,19 @@
 #include <limits>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/time.h>
+#include <ctime>
+#include <inttypes.h>
 
 #include "Prompter.hpp"
 
 static const char *dict_file_ = "scowl/final/english-words.80";
+
+#define USE_RAND 1
+
+typedef unsigned long long timestamp_t;
+long mtime, seconds, useconds;
+struct timeval start, end;
 
 int main()
 {
@@ -28,7 +37,20 @@ int main()
     }
 
     Prompter prompt;
+	std::cout << "Data base generating ... please wait  " << std::endl;
+
+    gettimeofday(&start, NULL);
+
     prompt.readDictionary( words );
+
+	gettimeofday(&end, NULL);
+
+	seconds  = end.tv_sec  - start.tv_sec;
+    useconds = end.tv_usec - start.tv_usec;
+    mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
+
+    std::cout << "Loaded successfully, total words:  " << prompt.WordsInDictionary() << std::endl;
+    std::cout << "Elapsed time: " << mtime << " milliseconds" << std::endl;
 
     int d[] = { 2,3,4,5,6,7,8,9 };
 
@@ -38,25 +60,53 @@ int main()
     const int MaxTestIteration = 100;
     const size_t MaxWordLength=10;
 
-
     std::cout << "Test started, tests iteration:  " << MaxTestIteration << std::endl;
 
     srand ( time(NULL) );
+    gettimeofday(&start, NULL);
+
     for( int test=0; test<MaxTestIteration; ++test )
     {
         digits.clear();
         const int len = sizeof(d)/sizeof(int);
+        int r = rand() % len;
 
         for( size_t i=0; i < MaxWordLength; ++i )
         {
-            digits.push_back( d[ rand() % len ] );
-            Prompter::StringList words = prompt.getSuggestedWords( digits );
+        	int repeats = rand() % 10;
+        	if( !(repeats % 2) ) r = rand() % len;
 
-            //if generated word incorrect it doesn't has predicted words
-            if( !words.size() ) break;
+            digits.push_back( d[ r ] );
+
+            std::cout << " ---> " << std::flush;
+            Prompter::StringList words = prompt.getSuggestedWords( digits );
+            std::cout << "( ";
+			for( auto it=digits.begin(); it!=digits.end(); ++it ) std::cout << *it << " ";
+			std::cout<< " )" << std::endl;
+
+            if( words.size() )
+            {
+
+				std::copy( words.begin(),
+						   words.end(),
+						   std::ostream_iterator<std::string>(std::cout, "\n") );
+				std::cout << " <---- found: " <<  words.size() << " words" << std::endl;
+
+				if( words.size() != 20 )
+				{
+					throw std::runtime_error( "less then 20" );
+				}
+            }
+
         }
     }
 
+    gettimeofday(&end, NULL);
 
+	seconds  = end.tv_sec  - start.tv_sec;
+    useconds = end.tv_usec - start.tv_usec;
+    mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
+
+    std::cout << "Time elapsed: " << mtime << " milliseconds, per " << MaxTestIteration*MaxWordLength << " iteration" << std::endl;
 return 0;
 }

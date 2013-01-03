@@ -40,7 +40,6 @@ public:
 
 	~CharDomen()
 	{
-
 	}
 
 	/**
@@ -51,7 +50,22 @@ public:
 	void getSuggestedWords(const std::string &value,
 						         std::list<std::string> &words)
 	{
-		//todo
+		auto it = trees_.find( std::toupper( value[0] ) );
+
+		if( it == trees_.end() )
+		{
+			throw std::runtime_error( "[Internal error] Undefined domen for string: " + std::string( value ) );
+		}
+
+		CharTree &ct = it->second;
+
+		CharTree::Set lines;
+		ct.GetSuggestedWords( value, lines );
+
+		for( auto it = lines.begin(); it!=lines.end(); ++it )
+		{
+			words.push_back( storage_[*it] );
+		}
 	}
 
 	/** \brief
@@ -72,8 +86,6 @@ public:
 		}
 
 		storage_.push_back( value );
-
-		//std::cout << "Adding " << value ;
 
 		CharTree &ct = it->second;
 		ct.Add( value, 1, storage_.size()-1 );

@@ -20,7 +20,16 @@ struct IPrompter
     typedef std::vector<std::string> Strings;
     typedef std::vector<int> Digits;
 
+    /** \brief
+     * 		Generates words data base
+     * @param words	Container with strings
+     */
     virtual void readDictionary( const Strings &words )=0;
+
+    /** \brief
+     * 		Returns suggested words for specified keys
+     * @param digits	Input digits ( e.g 22234569 )
+     */
     virtual StringList getSuggestedWords( const Digits &digits )=0;
 };
 
@@ -52,7 +61,8 @@ class Prompter: public IPrompter
 {
 public:
 
-    Prompter()
+    Prompter() :
+    	words_cnt_(0)
     {
     	CreateCharDomens();
     }
@@ -63,61 +73,81 @@ public:
 
     virtual void readDictionary( const Strings &words )
     {
-    	int cnt = 0;
         for( auto it=words.begin(); it!=words.end(); ++it )
 		{
         	CharDomen *domen = LookupForDomen( (*it)[0] );
 
         	if( domen )
         	{
-        		++cnt;
+        		++words_cnt_;
         		domen->Add( *it );
         	}
 		}
-
-        std::cout << "Loaded successfully, total words:  " << cnt << std::endl;
     }
 
     std::string DigitsToString( const Digits &digits )
     {
-        int prev_digit=0;
-        int cnt=0;
+    int prev=0;
+    int next=0;
+    int cnt=0;
 
         std::string str;
         for( auto it = digits.begin(); it != digits.end(); ++it )
         {
             if( *it < 2 || *it > 9 ) continue;
 
-            if( prev_digit == *it )
+            next=0;
+            if( it+1 != digits.end())
             {
-                ++cnt;
-
-                if( cnt > 3 ) cnt=3;
+            	next = *(it+1);
             }
+			if( prev == *it )
+			{
+			  if( cnt < MaxColChar-1 )
+			  {
+				  const char check = chars[ prev - 2 ][ cnt+1 ];
+				  if( check ) ++cnt;
+			  }
+			}
             else
             {
-                prev_digit = *it;
+                prev = *it;
                 cnt = 0;
             }
 
-            const char ch = chars[ prev_digit - 2 ][ cnt ];
-            str.append( sizeof(ch), ch );
+            if( prev != next )
+            {
+            	const char ch = chars[ prev - 2 ][ cnt ];
+            	str.append( sizeof(ch), ch );
+            }
         }
 
-        return str;
+    return str;
     }
 
 
     virtual StringList getSuggestedWords( const Digits &digits )
     {
         StringList tmp;
-        tmp.push_back("1");
+        const std::string value = DigitsToString(digits);
 
-        // CharDomen.getSuggestedWords( DigitsToString(digits), tmp );
+        std::cout << "lookup suggested words for: " << value << std::flush;
 
-        std::cout << DigitsToString(digits) << std::endl;
+        CharDomen *domen = LookupForDomen( value[0] );
+
+		if( !domen )
+		{
+			throw std::runtime_error( "Domens for this string doesn't exists: (" + value +")" );
+		}
+
+        domen->getSuggestedWords( value, tmp );
 
         return tmp;
+    }
+
+    int WordsInDictionary() const
+    {
+    	return words_cnt_;
     }
 
 private:
@@ -139,8 +169,6 @@ private:
 			}
 
 			Shared d( new CharDomen(chs[0], chs[1], chs[2], chs[3]) );
-
-			std::cout << "Created Domen for " << chs[0] << chs[1] << chs[2] << chs[3] << std::endl;
 
 			for( int n=0; n<MaxColChar; ++n )
 			{
@@ -170,5 +198,6 @@ private:
 
 	typedef std::shared_ptr<CharDomen> Shared;
     std::unordered_map< char, Shared > domens_;
+    int words_cnt_;
 
 };
