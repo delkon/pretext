@@ -3,6 +3,7 @@ Task
 Есть словарь содержащий 50 тысяч различных английских слов. 
 Пользователь ищет слова на своем мобильном телефоне используя цифровые клавиши.
 
+`
 2 = ABC
 3 = DEF
 4 = GHI
@@ -11,14 +12,17 @@ Task
 7 = PQRS
 8 = TUV
 9 = WXY(Z)
+`
  
 Необходимо реализовать подсказчик для редактора текста.
 
+`
 interface Prompter {
 
 void readDictionary(String [] words);
 List<String> getSuggestedWords(int [] digits);
 }
+`
  
 readDictionary считывает массив слов в память. getSuggestedWords получает строку из
 вводимых цифр и находит любые 20 слов которые начинаются на данную последовательность. 
@@ -28,6 +32,7 @@ readDictionary считывает массив слов в память. getSugg
 Speed Summary:
 =========================================================================================
 
+`
 1) Test on Dell D830 ( Core 2 Duo, 2.5GHz )
 
 GCC 4.4.3
@@ -43,10 +48,12 @@ bin/pretext > out.log
 
 Data base loading: Elapsed time: 3448 milliseconds
 Tests: 		   Elapsed time: 184 milliseconds, per 1000 iteration
+`
 
 Memory leak report:
 =======================================================================================
 
+`
 valgrind --leak-check=full --show-reachable=no --error-limit=no --error-exitcode=1 bin/pretext.
 
 ==12914== Memcheck, a memory error detector
@@ -64,3 +71,4 @@ valgrind --leak-check=full --show-reachable=no --error-limit=no --error-exitcode
 ==12914== 
 ==12914== For counts of detected and suppressed errors, rerun with: -v
 ==12914== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 18 from 7)
+`
