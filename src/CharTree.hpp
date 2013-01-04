@@ -1,8 +1,12 @@
 /*
+ * Predictive text library
  * CharTree.hpp
  *
- *      Author: dmitry
- */
+ * Copyright(C) 2013: Dmitry
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the BSD License
+ *****************************************************************************/
+
 
 #pragma once
 #include <unordered_map>
@@ -11,9 +15,12 @@
 #include <memory>
 #include <algorithm>
 
-/**
- *
- */
+/** \brief
+ * 		n-dimensional index tree data base for strings characters.
+ * 		Each index tree data base collect information about every character
+ * 		inclusion in specified string.
+ * 		CharTree worked with one root character only (e.g All words started from character 'A' )
+  */
 class CharTree
 {
 	typedef std::shared_ptr< CharTree > Shared;
@@ -31,6 +38,13 @@ public:
 	{
 	}
 
+	/** \brief
+	 * 		Adding new string to data base
+	 * @param value		string
+	 * @param pos		position for begiging (usual 1, because 0 used for domen detection )
+	 * @param storage_pos	where is "value" string located in string storage
+	 * @param node
+	 */
 	void Add( const std::string &value,
 			  size_t pos,
 			  int storage_pos,
@@ -64,11 +78,18 @@ public:
 		}
 	}
 
+	/** \brief
+	 * 		Searching suggested words for specified string and returns its indexes
+	 * @param value string
+	 * @param lines[out]	Collection of indexes (about 20) for specified string
+	 */
 	void GetSuggestedWords( const std::string &value,
 			  	  	  	    Set &lines )
 	{
 		const size_t MaxLines = 20;
-		//1) simple approach every time searching from beginning
+
+		//todo: Using simplest approach, every time searching from beginning
+		// could be optimized in future with caching
 
 		CharTree *node = SearchInTree( value, 1 );
 
@@ -79,7 +100,7 @@ public:
 
 		if( !node || lines.size() < MaxLines )
 		{
-			//convert to ordered due to order problems
+			//convert to ordered map due to elements sorting problems
 			std::map<char, Shared> ordered(childs_.begin(), childs_.end());
 
 			for( auto it=ordered.begin(); it!=ordered.end(); ++it )
@@ -93,6 +114,9 @@ public:
 
 private:
 
+	/** \brief
+	 *		Create collection of indexes based on specified node
+	 */
 	void CreateLines( CharTree *node, Set &lines, size_t MaxLines )
 	{
 		if( node->positions_.size() > MaxLines )
@@ -104,10 +128,8 @@ private:
 			lines = node->positions_;
 			CharTree *dest = node;
 
-			size_t len=0;
 			while( lines.size() <= MaxLines )
 			{
-				len=lines.size();
 				dest = dest->Parent();
 				if( !dest ) break;
 
@@ -202,8 +224,8 @@ private:
 	}
 
 	Map childs_;			//!< Tree leafs
-	CharTree *parent_;		//!< Link to prev. leaf
-	Set positions_;			//!< Positions in string storage for specified tree node
+	CharTree *parent_;		//!< Link to parent
+	Set positions_;			//!< Index positions in string storage for specified tree node
 };
 
 

@@ -1,8 +1,11 @@
 /*
+ * Predictive text library
  * CharDomen.hpp
  *
- *      Author: dmitry
- */
+ * Copyright(C) 2013: Dmitry
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the BSD License
+ *****************************************************************************/
 
 #pragma once
 #include <vector>
@@ -13,8 +16,9 @@
 
 #include "CharTree.hpp"
 
-/** Each characters domen could work with fixed amount of characters.
- * Characters domen consist strings and its tree index
+/** \brief
+ * 		Characters domen worked with symbols triplets.
+ * 		Also, domen consist all strings related to triplets.
  */
 class CharDomen
 {
@@ -42,10 +46,11 @@ public:
 	{
 	}
 
-	/**
+	/** \brief
+	 * 		Returns suggested words list
 	 *
-	 * @param[in] value
-	 * @param[out] words
+	 * @param[in] value		String for searching
+	 * @param[out] words	Suggested words list
 	 */
 	void getSuggestedWords(const std::string &value,
 						         std::list<std::string> &words)

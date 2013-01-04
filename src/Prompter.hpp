@@ -1,9 +1,13 @@
 /*
+ * Predictive text library
  * Prompter.hpp
  *
- *      Author: dmitry
- */
+ * Copyright(C) 2013: Dmitry
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the BSD License
+ *****************************************************************************/
 
+#pragma once
 #include <list>
 #include <vector>
 #include <string>
@@ -27,19 +31,23 @@ struct IPrompter
     virtual void readDictionary( const Strings &words )=0;
 
     /** \brief
-     * 		Returns suggested words for specified keys
+     * 		Returns suggested words for specified keys.
+     * 		A=2, B=22, C=333 and so on
      * @param digits	Input digits ( e.g 22234569 )
+     * @return String list with suggested words
      */
     virtual StringList getSuggestedWords( const Digits &digits )=0;
 };
 
 namespace {
 
+// constants for table
 static const int MaxRowChar = 8;
 static const int MaxColChar = 4;
 
-/** Possible symbols for domen and digits to symbol conversion
- *
+/** \brief
+ * 		Table for conversion from digits to symbols.
+ * 		It contains only allowed symbols.
  */
 static char chars[MaxRowChar][MaxColChar] =
 {
@@ -52,7 +60,8 @@ static char chars[MaxRowChar][MaxColChar] =
          {'T','U','V',0},     //8 = TUV
          {'W','X','Y','Z'}    //9 = WXY(Z)
 };
-}
+
+}	// end of anonymous namespace
 
 /** \brief
  * 		Prompter implementation
@@ -71,6 +80,10 @@ public:
     {
     }
 
+    /** \brief
+     * 		Generates words data base
+     * @param words	Container with strings
+     */
     virtual void readDictionary( const Strings &words )
     {
         for( auto it=words.begin(); it!=words.end(); ++it )
@@ -82,8 +95,51 @@ public:
         		++words_cnt_;
         		domen->Add( *it );
         	}
+        	else
+        	{
+        		std::cout << "\tWarning: Input string: '" <<
+        		      *it << "' doesn't comply to input data policy and will be ignored"
+        		          << std::endl;
+        	}
 		}
     }
+
+    /** \brief
+     * 		Returns suggested words for specified keys.
+     * 		A=2, B=22, C=333 and so on
+     * @param digits	Input digits ( e.g 22234569 )
+     * @return String list with suggested words
+     */
+    virtual StringList getSuggestedWords( const Digits &digits )
+    {
+        StringList tmp;
+        const std::string value = DigitsToString(digits);
+
+        std::cout << "lookup suggested words for: " << value << std::flush;
+
+        CharDomen *domen = LookupForDomen( value[0] );
+
+		if( !domen )
+		{
+			throw std::runtime_error( "Domens for this string doesn't exists: (" + value +")" );
+		}
+
+        domen->getSuggestedWords( value, tmp );
+
+        return tmp;
+    }
+
+    /** \brief
+     * 		Returns amount of words in prompter data base
+     *
+     * @return int amount of words
+     */
+    int WordsInDictionary() const
+    {
+    	return words_cnt_;
+    }
+
+private:
 
     std::string DigitsToString( const Digits &digits )
     {
@@ -125,33 +181,9 @@ public:
     return str;
     }
 
-
-    virtual StringList getSuggestedWords( const Digits &digits )
-    {
-        StringList tmp;
-        const std::string value = DigitsToString(digits);
-
-        std::cout << "lookup suggested words for: " << value << std::flush;
-
-        CharDomen *domen = LookupForDomen( value[0] );
-
-		if( !domen )
-		{
-			throw std::runtime_error( "Domens for this string doesn't exists: (" + value +")" );
-		}
-
-        domen->getSuggestedWords( value, tmp );
-
-        return tmp;
-    }
-
-    int WordsInDictionary() const
-    {
-    	return words_cnt_;
-    }
-
-private:
-
+    /** \brief
+     * 		For each symbols triplet this method creates own domen
+     */
     void CreateCharDomens()
     {
     	if( domens_.size() )
@@ -168,8 +200,10 @@ private:
 				chs[j] = chars[i][j];
 			}
 
+			// create domen for symbols triplet
 			Shared d( new CharDomen(chs[0], chs[1], chs[2], chs[3]) );
 
+			// assign each symbol to domen for searching
 			for( int n=0; n<MaxColChar; ++n )
 			{
 				if( chs[n] )

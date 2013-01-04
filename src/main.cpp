@@ -11,9 +11,8 @@
 
 #include "Prompter.hpp"
 
+//Input data from: http://wordlist.sourceforge.net/
 static const char *dict_file_ = "scowl/final/english-words.80";
-
-#define USE_RAND 1
 
 typedef unsigned long long timestamp_t;
 long mtime, seconds, useconds;
@@ -49,7 +48,7 @@ int main()
     useconds = end.tv_usec - start.tv_usec;
     mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
 
-    std::cout << "Loaded successfully, total words:  " << prompt.WordsInDictionary() << std::endl;
+    std::cout << "Loaded successfully, total words in data base:  " << prompt.WordsInDictionary() << std::endl;
     std::cout << "Elapsed time: " << mtime << " milliseconds" << std::endl;
 
     int d[] = { 2,3,4,5,6,7,8,9 };
@@ -60,7 +59,8 @@ int main()
     const int MaxTestIteration = 100;
     const size_t MaxWordLength=10;
 
-    std::cout << "Test started, tests iteration:  " << MaxTestIteration << std::endl;
+    std::cout << "\nTests started, amount of iteration:  " << MaxTestIteration << std::endl;
+    std::cout << "Each iteration consists:  " << MaxWordLength << " words" << std::endl;
 
     srand ( time(NULL) );
     gettimeofday(&start, NULL);
@@ -73,7 +73,7 @@ int main()
 
         for( size_t i=0; i < MaxWordLength; ++i )
         {
-        	int repeats = rand() % 10;
+        	int repeats = rand() % 20;
         	if( !(repeats % 2) ) r = rand() % len;
 
             digits.push_back( d[ r ] );
@@ -92,10 +92,13 @@ int main()
 						   std::ostream_iterator<std::string>(std::cout, "\n") );
 				std::cout << " <---- found: " <<  words.size() << " words" << std::endl;
 
+#if 0
 				if( words.size() != 20 )
 				{
 					throw std::runtime_error( "less then 20" );
 				}
+#endif
+
             }
 
         }
