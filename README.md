@@ -1,8 +1,7 @@
 Task
 ----------------------------------------------------------------------------------------
-Есть словарь содержащий 50 тысяч различных английских слов. 
-Пользователь ищет слова на своем мобильном телефоне используя цифровые клавиши.
-
+This library allow to emulate prediction text (T9 auto complete) on PC.
+Input data (digits in this format):
     2 = ABC
     3 = DEF
     4 = GHI
@@ -11,20 +10,16 @@ Task
     7 = PQRS
     8 = TUV
     9 = WXY(Z)
-
- 
-Необходимо реализовать подсказчик для редактора текста.
-
-    interface Prompter {
     
-    void readDictionary(String [] words);
-    List<String> getSuggestedWords(int [] digits);
-    }
- 
-readDictionary считывает массив слов в память. getSuggestedWords получает строку из
-вводимых цифр и находит любые 20 слов которые начинаются на данную последовательность. 
-Продумайте как должны быть организованы данные словаря для такого поиска. 
-Второй метод должен работать по возможности максимально быстро.
+    // 2 2 4 5 6 = BGJM
+
+and returns closest 20 words.
+For example:
+
+    Prompter prompt;
+    Prompter::Strings words = LoadFromFile( somefile );
+    prompt.readDictionary( words );
+    Prompter::StringList prewords = prompt.getSuggestedWords( {2,2,4,5,6} );
 
 Speed Summary:
 =========================================================================================
