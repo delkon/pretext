@@ -2,6 +2,7 @@ Task
 ----------------------------------------------------------------------------------------
 This library allow to emulate prediction text (T9 auto complete) on PC.
 Input data (digits in this format):
+
     2 = ABC
     3 = DEF
     4 = GHI
